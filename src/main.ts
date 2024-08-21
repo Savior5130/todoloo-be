@@ -1,10 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { UsersService } from './users/users.service';
-import * as bcrypt from 'bcrypt';
-import { Role } from './users/entities/role.enum';
 import { AllExceptionsFilter } from './all-exceptions.filter';
 import * as dotenv from 'dotenv';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 dotenv.config();
 
@@ -13,16 +11,14 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  const usersService = app.get(UsersService);
-  const username = 'testuser';
-  const name = 'tester';
-  const role = Role.ADMIN;
-  const password = await bcrypt.hash('password', 10);
-  const user = await usersService.findOne(username);
-  if (!user) {
-    await usersService.create({ username, password, role, name });
-  }
+  const config = new DocumentBuilder()
+    .setTitle('Todoloo API')
+    .setDescription('API for task manager application: Todoloo')
+    .setVersion('1.0')
+    .build();
 
-  await app.listen(3000);
+const document = SwaggerModule.createDocument(app, config);
+SwaggerModule.setup('api', app, document);
+await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
