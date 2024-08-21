@@ -18,14 +18,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiOkResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 
 @ApiTags('Users')
 @Controller('users')
-@UseGuards(JwtAuthGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -39,22 +37,26 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   @Roles(Role.ADMIN)
   getAllUser() {
     return this.usersService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   getAllCommonUser() {
     return this.usersService.findAllCommonUser();
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get(':username')
   getOne(@Param('username', ParseIntPipe) username: string) {
     return this.usersService.findOne(username);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Patch(':username')
   @Roles(Role.ADMIN)
   update(
@@ -64,6 +66,7 @@ export class UsersController {
     return this.usersService.update(username, updateUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete(':username')
   @Roles(Role.ADMIN)
   remove(@Param('username', ParseIntPipe) username: string) {
