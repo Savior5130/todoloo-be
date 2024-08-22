@@ -8,7 +8,6 @@ import {
   Delete,
   NotFoundException,
   ParseIntPipe,
-  ValidationPipe,
   UseGuards,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
@@ -27,7 +26,7 @@ export class TodosController {
 
   @Post()
   async create(
-    @Body(new ValidationPipe()) createTodoDto: CreateTodoDto,
+    @Body() createTodoDto: CreateTodoDto,
     @CurrentUser() user: User,
   ) {
     return this.todosService.create(createTodoDto, user);
@@ -48,8 +47,8 @@ export class TodosController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
-    return this.todosService.update(+id, updateTodoDto);
+  async update(@Param('id') id: string, @Body() updateTodoDto: UpdateTodoDto) {
+    return await this.todosService.update(+id, updateTodoDto);
   }
 
   @Delete(':id')

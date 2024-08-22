@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -15,30 +19,41 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const { username, password } = createUserDto;
+    const userExists = await this.userExists(username);
+
+    if (userExists) {
+      throw new BadRequestException('User already exist');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     createUserDto.password = hashedPassword;
 
-    if (this.userExists(username)) {
-      throw new BadRequestException('User already exist');
-    }
     const newUser = this.usersRepository.create(createUserDto);
     return this.usersRepository.save(newUser);
   }
 
-  findAll() {
-    return this.usersRepository.find();
+  async findAll(): Promise<User[]> {
+    return await this.usersRepository.find();
   }
 
-  findAllCommonUser() {
-    return this.usersRepository.findBy({ role: Role.USER });
+  async findAllCommonUser() {
+    return await this.usersRepository.findBy({ role: Role.USER });
   }
 
   async findOne(username: string): Promise<User | undefined> {
-    return this.usersRepository.findOneBy({ username });
+    const user = await this.usersRepository.findOne({ where: { username } });
+    if (!user)
+      throw new NotFoundException(`User with username ${username} not found`);
+    return user;
   }
+
   async userExists(username: string): Promise<Boolean> {
-    const user = await this.findOne(username);
-    return !!user;
+    const user = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    if (user) return true;
+    return false;
   }
 
   async update(username: string, updateUserDto: UpdateUserDto) {

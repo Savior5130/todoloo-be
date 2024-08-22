@@ -37,37 +37,37 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
+  @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
-  getAllUser() {
+  async getAllUser() {
     return this.usersService.findAll();
   }
 
+  @Get('/common')
   @UseGuards(JwtAuthGuard)
-  @Get()
-  getAllCommonUser() {
+  async getAllCommonUser() {
     return this.usersService.findAllCommonUser();
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':username')
-  getOne(@Param('username', ParseIntPipe) username: string) {
+  @UseGuards(JwtAuthGuard)
+  async getOne(@Param('username') username: string) {
     return this.usersService.findOne(username);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':username')
+  @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
   update(
-    @Param('username', ParseIntPipe) username: string,
+    @Param('username') username: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
     return this.usersService.update(username, updateUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':username')
+  @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
   remove(@Param('username', ParseIntPipe) username: string) {
     return this.usersService.remove(username);
