@@ -1,31 +1,42 @@
 import {
-  ArgumentsHost,
-  Catch,
   ExceptionFilter,
+  Catch,
   HttpException,
+  ArgumentsHost,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 
-@Catch()
+@Catch() // This decorator catches all exceptions
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: any, host: ArgumentsHost) {
+  private readonly logger = new Logger(AllExceptionsFilter.name);
+
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const httpResponse = ctx.getResponse();
-    const httpRequest = ctx.getRequest();
+    const response = ctx.getResponse();
+    const request = ctx.getRequest();
     const status =
       exception instanceof HttpException
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR;
-    const message =
-      exception instanceof HttpException
-        ? exception.message
-        : 'Internal server error';
 
-    httpResponse.status(status).json({
+    const exceptionResponse =
+      exception instanceof HttpException
+        ? exception.getResponse()
+        : { message: 'Internal server error' };
+
+    // Log the exception
+    this.logger.error(
+      `HTTP ${status} ${request.method} ${request.url}`,
+      JSON.stringify(exceptionResponse),
+    );
+
+    response.status(status).json({
       statusCode: status,
       timestamp: new Date().toISOString(),
-      path: httpRequest.url,
-      message,
+      ...(typeof exceptionResponse === 'string'
+        ? { message: exceptionResponse }
+        : exceptionResponse),
     });
   }
 }

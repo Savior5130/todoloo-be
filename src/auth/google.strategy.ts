@@ -2,6 +2,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Profile } from 'passport';
 import { Strategy } from 'passport-google-oauth20';
 import { VerifiedCallback } from 'passport-jwt';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 export class GoogleStrategy extends PassportStrategy(Strategy) {
   constructor() {
