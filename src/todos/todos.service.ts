@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import { TodoStatus } from './entities/todostatus.enum';
 
 @Injectable()
 export class TodosService {
@@ -17,18 +18,21 @@ export class TodosService {
     const assignee_username = createTodoDto.assignee_username;
     const assignee =
       assignee_username &&
-      (await this.usersRepository.findOneBy({ username: assignee_username }));
+      (await this.usersRepository.findOne({
+        where: { username: assignee_username },
+      }));
     const todo = {
       ...createTodoDto,
       assignee,
       creator: user,
+      status: TodoStatus.TODO,
     };
     const newTodo = this.todosRepository.create(todo);
     return this.todosRepository.save(newTodo);
   }
 
-  findAll(userId: string): Promise<Todo[]> {
-    return this.todosRepository
+  async findAll(userId: string): Promise<Todo[]> {
+    return await this.todosRepository
       .createQueryBuilder('todo')
       .leftJoinAndSelect('todo.creator', 'creator')
       .leftJoinAndSelect('todo.assignee', 'assignee')

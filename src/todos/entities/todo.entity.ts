@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TodoStatus } from './todostatus.enum';
 
 @Entity()
 export class Todo {
@@ -25,4 +26,7 @@ export class Todo {
   @ManyToOne(() => User)
   @JoinColumn()
   assignee: User;
+
+  @Column()
+  status: TodoStatus;
 }

@@ -33,9 +33,9 @@ export class TodosController {
     return this.todosService.create(createTodoDto, user);
   }
 
-  @Get(':user_id')
-  getAll(@CurrentUser() user: any) {
-    return this.todosService.findAll(user.id);
+  @Get()
+  async getAll(@CurrentUser() user: any) {
+    return await this.todosService.findAll(user.id);
   }
 
   @Get(':id')
