@@ -25,16 +25,17 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Post()
-  async create(
+  create(
     @CurrentUser() user: User,
     @Body() createCommentDto: CreateCommentDto,
   ) {
     return this.commentsService.create(user, createCommentDto);
   }
 
-  @Get('todo/:id')
+  @Get(':id')
   async getAllByTodoId(@Param('id', ParseIntPipe) id: number) {
-    this.commentsService.findAllByTodoId(id);
+    const comments = await this.commentsService.findAllByTodoId(id);
+    return comments;
   }
 
   @Patch(':id')

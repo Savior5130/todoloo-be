@@ -24,7 +24,7 @@ export class Comment {
   @JoinColumn()
   todo: Todo;
 
-  @OneToOne(() => User)
+  @ManyToOne(() => User)
   @JoinColumn()
   creator: User;
 }

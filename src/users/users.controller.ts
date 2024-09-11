@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Request,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,13 +22,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
+import { CurrentUser } from './current-user.decorator';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('/register')
+  @Post('register')
   @ApiCreatedResponse({
     description: 'Created user object as response',
     type: User,
@@ -37,6 +39,18 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get('info')
+  @UseGuards(JwtAuthGuard)
+  getUserFromToken(@CurrentUser() user: User) {
+    return this.usersService.findById(user.id);
+  }
+
+  @Get(':username')
+  @UseGuards(JwtAuthGuard)
+  async getOne(@Param('username') username: string) {
+    return this.usersService.findOne(username);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   @Roles(Role.ADMIN)
@@ -44,16 +58,10 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get('/common')
+  @Get('common')
   @UseGuards(JwtAuthGuard)
   async getAllCommonUser() {
     return this.usersService.findAllCommonUser();
-  }
-
-  @Get(':username')
-  @UseGuards(JwtAuthGuard)
-  async getOne(@Param('username') username: string) {
-    return this.usersService.findOne(username);
   }
 
   @Patch(':username')

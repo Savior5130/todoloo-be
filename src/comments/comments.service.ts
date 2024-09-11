@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,8 +16,10 @@ export class CommentsService {
   ) {}
 
   async create(user: User, createCommentDto: CreateCommentDto) {
-    const todo = await this.todosRepository.findOneBy({
-      id: createCommentDto.todo_id,
+    const todo = await this.todosRepository.findOne({
+      where: {
+        id: createCommentDto.todo_id,
+      },
     });
     const comment = {
       ...createCommentDto,
@@ -29,16 +31,17 @@ export class CommentsService {
     return this.commentsRepository.save(newComment);
   }
 
-  async findAllByTodoId(todoId: number): Promise<Comment[]> {
-    const todo = await this.todosRepository.findOneBy({ id: todoId });
+  async findAllByTodoId(todoId: number): Promise<any> {
+    const todo = await this.todosRepository.findOne({ where: { id: todoId } });
+
     if (!todo) {
       throw new NotFoundException(`Todo with ID ${todoId} not found`);
     }
-
-    return this.commentsRepository
-      .createQueryBuilder('comment')
-      .where('comment.todoId = :todoId', { todoId })
-      .getMany();
+    const comments = await this.commentsRepository.find({
+      where: { todo },
+      relations: ['creator'],
+    });
+    return comments;
   }
 
   update(id: number, updateCommentDto: UpdateCommentDto) {

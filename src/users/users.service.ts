@@ -10,6 +10,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Role } from './entities/role.enum';
+import { ReadUserDto } from './dto/read-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,19 +33,35 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.usersRepository.find();
+  async findById(id: string): Promise<ReadUserDto | undefined> {
+    const user = await this.usersRepository.findOne({ where: { id } });
+    if (user !== null) {
+      const { password, ...userInfo } = user;
+      return userInfo;
+    }
+    return undefined;
   }
 
-  async findAllCommonUser() {
-    return await this.usersRepository.findBy({ role: Role.USER });
+  async findAll(): Promise<ReadUserDto[] | undefined> {
+    const users = await this.usersRepository.find();
+    if (users.length > 0) {
+      const usersInfo = users.map(({ password, ...userInfo }) => userInfo);
+      return usersInfo;
+    }
+    return undefined;
+  }
+
+  async findAllCommonUser(): Promise<ReadUserDto[] | undefined> {
+    const users = await this.usersRepository.findBy({ role: Role.USER });
+    if (users.length > 0) {
+      const usersInfo = users.map(({ password, ...userInfo }) => userInfo);
+      return usersInfo;
+    }
+    return undefined;
   }
 
   async findOne(username: string): Promise<User | undefined> {
-    const user = await this.usersRepository.findOne({ where: { username } });
-    if (!user)
-      throw new NotFoundException(`User with username ${username} not found`);
-    return user;
+    return await this.usersRepository.findOne({ where: { username } });
   }
 
   async userExists(username: string): Promise<Boolean> {

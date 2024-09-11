@@ -46,7 +46,7 @@ export class TodosService {
     return await this.todosRepository.findOne({ where: { id } });
   }
 
-  async update(id: number, updateTodoDto: UpdateTodoDto) {
+  async update(id: number, updateTodoDto: UpdateTodoDto): Promise<Todo> {
     const todo = await this.findOne(id);
     if (!todo) throw new NotFoundException('Todo not found');
     return this.todosRepository.save({ ...todo, ...updateTodoDto });

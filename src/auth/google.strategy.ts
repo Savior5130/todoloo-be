@@ -1,13 +1,15 @@
 import { PassportStrategy } from '@nestjs/passport';
-import { Profile } from 'passport';
-import { Strategy } from 'passport-google-oauth20';
+import { Profile, Strategy } from 'passport-google-oauth20';
 import { VerifiedCallback } from 'passport-jwt';
 import * as dotenv from 'dotenv';
+import { AuthService } from './auth.service';
+import { Injectable } from '@nestjs/common';
 
 dotenv.config();
 
+@Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private authService: AuthService) {
     super({
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
@@ -21,7 +23,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     refreshToken: string,
     profile: Profile,
     done: VerifiedCallback,
-  ): Promise<any> {
-    done(null, profile);
+  ) {
+    const user = await this.authService.validateGoogleUser(profile);
+    done(null, user);
   }
 }

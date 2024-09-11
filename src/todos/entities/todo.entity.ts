@@ -19,11 +19,11 @@ export class Todo {
   @Column()
   description: string;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, 'creatorId')
   @JoinColumn()
   creator: User;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, 'assigneeId')
   @JoinColumn()
   assignee: User;
 

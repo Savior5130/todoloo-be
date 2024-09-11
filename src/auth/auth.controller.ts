@@ -12,22 +12,20 @@ export class AuthController {
 
   @Get('google/login')
   @UseGuards(GoogleAuthGuard)
-  googleLogin(@Request() req): any {
-    return this.authService.login(req.user);
-  }
+  googleLogin() {}
 
   @Get('google/redirect')
   @UseGuards(GoogleAuthGuard)
   async googleRedirect(@Request() req, @Res() res) {
     const jwt = await this.authService.login(req.user);
-    res.set('authorization', jwt.access_token);
-    res.json(req.user);
+    res.redirect(`http://localhost:5173?token=${jwt.access_token}`);
   }
 
   @Post('login')
   @UseGuards(LocalAuthGuard)
-  login(@Request() req): any {
-    return this.authService.login(req.user);
+  async login(@Request() req): Promise<any> {
+    const { access_token } = await this.authService.login(req.user);
+    return { token: access_token, ...req.user };
   }
 
   @Get('protected')
