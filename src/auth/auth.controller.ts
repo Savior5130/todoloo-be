@@ -41,11 +41,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const tokens = await this.authService.login(req.user);
-    res.cookie('refreshToken', tokens.refresh_token, {
-      httpOnly: false,
-      sameSite: 'strict',
-      path: '/',
-    });
     res.redirect(`http://localhost:5173/home?token=${tokens.access_token}`);
   }
 
