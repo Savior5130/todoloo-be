@@ -15,7 +15,6 @@ import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { CurrentUser } from 'src/users/current-user.decorator';
-import { User } from 'src/users/entities/user.entity';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Todos')
@@ -25,10 +24,7 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  async create(
-    @Body() createTodoDto: CreateTodoDto,
-    @CurrentUser() user: User,
-  ) {
+  async create(@CurrentUser() user: any, @Body() createTodoDto: CreateTodoDto) {
     return this.todosService.create(createTodoDto, user);
   }
 

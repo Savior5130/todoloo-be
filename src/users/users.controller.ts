@@ -29,20 +29,16 @@ import { CurrentUser } from './current-user.decorator';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('register')
-  @ApiCreatedResponse({
-    description: 'Created user object as response',
-    type: User,
-  })
-  @ApiBadRequestResponse({ description: 'User cannot register. Try again!' })
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
-  }
-
   @Get('info')
   @UseGuards(JwtAuthGuard)
   getUserFromToken(@CurrentUser() user: User) {
     return this.usersService.findById(user.id);
+  }
+
+  @Get('common')
+  @UseGuards(JwtAuthGuard)
+  async getAllCommonUser() {
+    return this.usersService.findAllCommonUser();
   }
 
   @Get(':username')
@@ -56,12 +52,6 @@ export class UsersController {
   @Roles(Role.ADMIN)
   async getAllUser() {
     return this.usersService.findAll();
-  }
-
-  @Get('common')
-  @UseGuards(JwtAuthGuard)
-  async getAllCommonUser() {
-    return this.usersService.findAllCommonUser();
   }
 
   @Patch(':username')

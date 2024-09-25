@@ -1,14 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
-import * as bcrypt from 'bcrypt';
 import { Role } from './entities/role.enum';
 import { ReadUserDto } from './dto/read-user.dto';
 
@@ -17,21 +11,6 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private usersRepository: Repository<User>,
   ) {}
-
-  async create(createUserDto: CreateUserDto) {
-    const { username, password } = createUserDto;
-    const userExists = await this.userExists(username);
-
-    if (userExists) {
-      throw new BadRequestException('User already exist');
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    createUserDto.password = hashedPassword;
-
-    const newUser = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(newUser);
-  }
 
   async findById(id: string): Promise<ReadUserDto | undefined> {
     const user = await this.usersRepository.findOne({ where: { id } });

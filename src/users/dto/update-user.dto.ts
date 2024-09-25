@@ -8,22 +8,22 @@ export class UpdateUserDto extends PartialType(CreateUserDto) {
     description: 'The name of the user',
     example: 'John Doe',
   })
-  name: string;
+  name?: string;
 
   @ApiProperty({
     description: 'The username of the user',
     example: 'johndoe',
   })
-  username: string;
+  username?: string;
 
   @ApiProperty({
     description: 'The password for this account',
   })
-  password: string;
+  password?: string;
 
   @ApiProperty({
     description: 'The role of the account',
     enum: ['admin', 'user'],
   })
-  role: Role;
+  role?: Role;
 }
